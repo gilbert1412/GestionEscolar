@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('matriculas', function (Blueprint $table) {
             $table->id();
+            
             $table->foreignId('user_id')->constrained(
             table: 'users', indexName: 'alumno_id'
             )->onUpdate('cascade')->onDelete('cascade');
