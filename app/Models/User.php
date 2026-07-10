@@ -13,10 +13,16 @@ use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-#[Fillable(['name', 'email', 'password'])]
+
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
+    protected $fillable = [
+        'nombre',
+        'apellido',
+        'email',
+        'password',
+    ];
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, HasRoles;
 

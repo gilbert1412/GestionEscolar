@@ -5,7 +5,8 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 class DatabaseSeeder extends Seeder
 {
     use WithoutModelEvents;
@@ -18,8 +19,20 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
 
         User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            'nombre' => 'Gilbert Jesus',
+            'apellido' => 'Gonzalez',
+            'password' => bcrypt('12345678'),
+            'email' => 'admin@gmail.com',
+        ]);
+
+        Role::create([
+            'name' => 'admin',
+        ]);
+        Role::create([
+            'name' => 'docente',
+        ]);
+        Role::create([
+            'name' => 'alumno',
         ]);
     }
 }
