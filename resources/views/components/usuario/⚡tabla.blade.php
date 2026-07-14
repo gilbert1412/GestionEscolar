@@ -1,15 +1,22 @@
 <?php
 
 use Livewire\Component;
-
-new class extends Component
-{
-    //
+use Livewire\Attributes\Computed;
+use App\Models\User;
+new class extends Component {
+    #[Computed]
+    public function usuarios()
+    {
+        return User::with('roles')
+            ->select('id', 'nombre', 'apellido', 'email')
+            ->get();
+    }
 };
 ?>
 
 <div class="card border-0 shadow-sm rounded-lg overflow-hidden mb-4">
-    <div class="card-header bg-white py-3 d-flex flex-column flex-md-row align-items-md-center justify-content-between border-bottom-0">
+    <div
+        class="card-header bg-white py-3 d-flex flex-column flex-md-row align-items-md-center justify-content-between border-bottom-0">
         <div class="mb-2 mb-md-0">
             <h6 class="m-0 font-weight-bold" style="color: #1e293b;">
                 <i class="fas fa-users text-muted mr-2"></i>Usuarios registrados
@@ -21,13 +28,15 @@ new class extends Component
                     <i class="fas fa-search"></i>
                 </span>
             </div>
-            <input type="text" id="buscarUsuario" class="form-control border-left-0 pl-1" placeholder="Buscar por nombre o email..." style="border-color: #cbd5e1;">
+            <input type="text" id="buscarUsuario" class="form-control border-left-0 pl-1"
+                placeholder="Buscar por nombre o email..." style="border-color: #cbd5e1;">
         </div>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0" id="tablaUsuarios" style="vertical-align: middle;">
-                <thead style="background-color: #f1f5f9; color: #475569; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                <thead
+                    style="background-color: #f1f5f9; color: #475569; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;">
                     <tr>
                         <th class="border-0 pl-4 py-3">Usuario</th>
                         <th class="border-0 py-3">Email</th>
@@ -37,117 +46,59 @@ new class extends Component
                     </tr>
                 </thead>
                 <tbody style="color: #334155; font-size: 0.95rem;">
-                    
-                    <!-- Fila 1 -->
-                    <tr data-id="1" data-nombre="María" data-apellido="Gómez" data-email="maria.gomez@escuela.com" data-rol="admin" data-estado="activo">
-                        <td class="pl-4 py-3">
-                            <div class="d-flex align-items-center">
-                                <div class="rounded-circle d-flex align-items-center justify-content-center text-white font-weight-bold mr-3 shadow-sm" 
-                                     style="width: 40px; height: 40px; background: #2563eb; font-size: 0.9rem;">
-                                    MG
-                                </div>
-                                <div>
-                                    <div class="font-weight-bold" style="color: #0f172a;">María Gómez</div>
-                                    <small class="text-muted">ID #1</small>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="py-3">maria.gomez@escuela.com</td>
-                        <td class="py-3">
-                            <span class="badge px-3 py-2 rounded-pill font-weight-600" style="background-color: #fee2e2; color: #991b1b; font-size: 0.8rem;">
-                                Administrador
-                            </span>
-                        </td>
-                        <td class="py-3">
-                            <span class="badge px-2 py-1 rounded-pill" style="background-color: #d1fae5; color: #065f46; font-size: 0.75rem;">
-                                <i class="fas fa-circle fa-xs mr-1" style="font-size: 6px; vertical-align: middle;"></i> Activo
-                            </span>
-                        </td>
-                        <td class="text-right pr-4 py-3">
-                            <div class="btn-group" role="group">
-                                <button class="btn btn-sm btn-light border text-primary mr-1 rounded-lg" title="Editar" data-toggle="modal" data-target="#modalUsuario" onclick="modoEditar(this)">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-sm btn-light border text-danger rounded-lg" title="Eliminar" data-toggle="modal" data-target="#modalEliminar" onclick="confirmarEliminar(1, 'María Gómez')">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
+                    @foreach ($this->usuarios as $usuario)
 
-                    <!-- Fila 2 -->
-                    <tr data-id="2" data-nombre="Carlos" data-apellido="Ramírez" data-email="carlos.ramirez@escuela.com" data-rol="docente" data-estado="activo">
-                        <td class="pl-4 py-3">
-                            <div class="d-flex align-items-center">
-                                <div class="rounded-circle d-flex align-items-center justify-content-center text-white font-weight-bold mr-3 shadow-sm" 
-                                     style="width: 40px; height: 40px; background: #10b981; font-size: 0.9rem;">
-                                    CR
-                                </div>
-                                <div>
-                                    <div class="font-weight-bold" style="color: #0f172a;">Carlos Ramírez</div>
-                                    <small class="text-muted">ID #2</small>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="py-3">carlos.ramirez@escuela.com</td>
-                        <td class="py-3">
-                            <span class="badge px-3 py-2 rounded-pill font-weight-600" style="background-color: #e0f2fe; color: #0369a1; font-size: 0.8rem;">
-                                Docente
-                            </span>
-                        </td>
-                        <td class="py-3">
-                            <span class="badge px-2 py-1 rounded-pill" style="background-color: #d1fae5; color: #065f46; font-size: 0.75rem;">
-                                <i class="fas fa-circle fa-xs mr-1" style="font-size: 6px; vertical-align: middle;"></i> Activo
-                            </span>
-                        </td>
-                        <td class="text-right pr-4 py-3">
-                            <div class="btn-group" role="group">
-                                <button class="btn btn-sm btn-light border text-primary mr-1 rounded-lg" title="Editar" data-toggle="modal" data-target="#modalUsuario" onclick="modoEditar(this)">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-sm btn-light border text-danger rounded-lg" title="Eliminar" data-toggle="modal" data-target="#modalEliminar" onclick="confirmarEliminar(2, 'Carlos Ramírez')">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
+                        <tr data-id="1" data-nombre="María" data-apellido="Gómez" data-email="maria.gomez@escuela.com"
+                            data-rol="admin" data-estado="activo">
+                            <td class="pl-4 py-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="rounded-circle d-flex align-items-center justify-content-center text-white font-weight-bold mr-3 shadow-sm"
+                                        style="width: 40px; height: 40px; background: #2563eb; font-size: 0.9rem;">
 
-                    <!-- Fila 3 -->
-                    <tr data-id="3" data-nombre="Luis" data-apellido="Fernández" data-email="luis.fernandez@escuela.com" data-rol="alumno" data-estado="inactivo">
-                        <td class="pl-4 py-3">
-                            <div class="d-flex align-items-center">
-                                <div class="rounded-circle d-flex align-items-center justify-content-center text-white font-weight-bold mr-3 shadow-sm" 
-                                     style="width: 40px; height: 40px; background: #6b7280; font-size: 0.9rem;">
-                                    LF
+                                        {{ strtoupper(substr($usuario->nombre ?? '', 0, 1) . substr($usuario->apellido ?? '', 0, 1)) }}
+
+                                    </div>
+                                    <div>
+                                        <div class="font-weight-bold" style="color: #0f172a;">{{$usuario->nombre}}
+                                            {{$usuario->apellido}}
+                                        </div>
+                                        <small class="text-muted">ID {{ $loop->index + 1 }}</small>
+                                    </div>
                                 </div>
-                                <div>
-                                    <div class="font-weight-bold" style="color: #0f172a;">Luis Fernández</div>
-                                    <small class="text-muted">ID #3</small>
+                            </td>
+                            <td class="py-3">{{$usuario->email}}</td>
+                            <td class="py-3">
+                                <span class="badge px-3 py-2 rounded-pill font-weight-600"
+                                    style="background-color: #fee2e2; color: #991b1b; font-size: 0.8rem;">
+                                    {{ $usuario->roles->first()?->name }}
+
+                                </span>
+                            </td>
+                            <td class="py-3">
+                                <span class="badge px-2 py-1 rounded-pill"
+                                    style="background-color: #d1fae5; color: #065f46; font-size: 0.75rem;">
+                                    <i class="fas fa-circle fa-xs mr-1" style="font-size: 6px; vertical-align: middle;"></i>
+                                    Activo
+                                </span>
+                            </td>
+                            <td class="text-right pr-4 py-3">
+                                <div class="btn-group" role="group">
+                                    <button class="btn btn-sm btn-light border text-primary mr-1 rounded-lg" title="Editar"
+                                        data-toggle="modal" data-target="#modalUsuario" onclick="modoEditar(this)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-light border text-danger rounded-lg" title="Eliminar"
+                                        data-toggle="modal" data-target="#modalEliminar"
+                                        onclick="confirmarEliminar(1, 'María Gómez')">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
                                 </div>
-                            </div>
-                        </td>
-                        <td class="py-3">luis.fernandez@escuela.com</td>
-                        <td class="py-3">
-                            <span class="badge px-3 py-2 rounded-pill font-weight-600" style="background-color: #f1f5f9; color: #475569; font-size: 0.8rem;">
-                                Alumno
-                            </span>
-                        </td>
-                        <td class="py-3">
-                            <span class="badge px-2 py-1 rounded-pill" style="background-color: #f1f5f9; color: #475569; font-size: 0.75rem;">
-                                <i class="fas fa-circle fa-xs mr-1" style="font-size: 6px; vertical-align: middle;"></i> Inactivo
-                            </span>
-                        </td>
-                        <td class="text-right pr-4 py-3">
-                            <div class="btn-group" role="group">
-                                <button class="btn btn-sm btn-light border text-primary mr-1 rounded-lg" title="Editar" data-toggle="modal" data-target="#modalUsuario" onclick="modoEditar(this)">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-sm btn-light border text-danger rounded-lg" title="Eliminar" data-toggle="modal" data-target="#modalEliminar" onclick="confirmarEliminar(3, 'Luis Fernández')">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
+                            </td>
+                        </tr>
+                    @endforeach
+
+
+
 
                 </tbody>
             </table>

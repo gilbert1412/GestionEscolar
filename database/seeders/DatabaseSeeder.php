@@ -18,21 +18,24 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        User::factory()->create([
+        $usuario=User::factory()->create([
             'nombre' => 'Gilbert Jesus',
-            'apellido' => 'Gonzalez',
+            'apellido' => 'Martinez Grados',
             'password' => bcrypt('12345678'),
             'email' => 'admin@gmail.com',
         ]);
 
-        Role::create([
+        $adminRole=Role::create([
             'name' => 'admin',
         ]);
+
         Role::create([
             'name' => 'docente',
         ]);
         Role::create([
             'name' => 'alumno',
         ]);
+
+        $usuario->assignRole($adminRole);
     }
 }
