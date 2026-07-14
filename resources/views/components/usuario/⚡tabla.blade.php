@@ -3,13 +3,48 @@
 use Livewire\Component;
 use Livewire\Attributes\Computed;
 use App\Models\User;
+use Livewire\Attributes\Reactive;
+use Livewire\Attributes\On;
 new class extends Component {
+
+   
+    public $roles=[];
+    public $buscarUsuario = '';
+
+    public function mostrarRoles()
+    {
+        $this->roles = User::with('roles')->get();
+    }
+    #[On('cerrar-modal')]
     #[Computed]
     public function usuarios()
     {
-        return User::with('roles')
-            ->select('id', 'nombre', 'apellido', 'email')
-            ->get();
+       return User::with('roles')
+        ->select('id', 'nombre', 'apellido', 'email')
+        ->where(function ($query) {
+            $query->where('nombre', 'like', "%{$this->buscarUsuario}%")
+                ->orWhere('apellido', 'like', "%{$this->buscarUsuario}%")
+                ->orWhere('email', 'like', "%{$this->buscarUsuario}%")
+                ->orWhereHas('roles', function ($q) {
+                    $q->where('name', 'like', "%{$this->buscarUsuario}%");
+                });
+        })
+        ->get();
+    }
+
+    #[On('abrir-modal')]
+    public function abrirModal($id)
+    {
+        $this->dispatch('mostrar-usuario', id: $id)->to('usuario.create');;
+    }
+    #[On('eliminar-usuario')]
+    public function eliminarUsuario($id)
+    {
+        
+        $usuario = User::findOrFail($id);
+        $usuario->delete();
+        $this->dispatch('cerrar-modal');
+        
     }
 };
 ?>
@@ -29,7 +64,7 @@ new class extends Component {
                 </span>
             </div>
             <input type="text" id="buscarUsuario" class="form-control border-left-0 pl-1"
-                placeholder="Buscar por nombre o email..." style="border-color: #cbd5e1;">
+                placeholder="Buscar por nombre o email..." style="border-color: #cbd5e1;"  wire:model.live="buscarUsuario">
         </div>
     </div>
     <div class="card-body p-0">
@@ -41,15 +76,14 @@ new class extends Component {
                         <th class="border-0 pl-4 py-3">Usuario</th>
                         <th class="border-0 py-3">Email</th>
                         <th class="border-0 py-3">Rol</th>
-                        <th class="border-0 py-3">Estado</th>
+                        
                         <th class="border-0 text-right pr-4 py-3">Acciones</th>
                     </tr>
                 </thead>
                 <tbody style="color: #334155; font-size: 0.95rem;">
                     @foreach ($this->usuarios as $usuario)
 
-                        <tr data-id="1" data-nombre="María" data-apellido="Gómez" data-email="maria.gomez@escuela.com"
-                            data-rol="admin" data-estado="activo">
+                        <tr>
                             <td class="pl-4 py-3">
                                 <div class="d-flex align-items-center">
                                     <div class="rounded-circle d-flex align-items-center justify-content-center text-white font-weight-bold mr-3 shadow-sm"
@@ -74,22 +108,16 @@ new class extends Component {
 
                                 </span>
                             </td>
-                            <td class="py-3">
-                                <span class="badge px-2 py-1 rounded-pill"
-                                    style="background-color: #d1fae5; color: #065f46; font-size: 0.75rem;">
-                                    <i class="fas fa-circle fa-xs mr-1" style="font-size: 6px; vertical-align: middle;"></i>
-                                    Activo
-                                </span>
-                            </td>
+                            
                             <td class="text-right pr-4 py-3">
                                 <div class="btn-group" role="group">
                                     <button class="btn btn-sm btn-light border text-primary mr-1 rounded-lg" title="Editar"
-                                        data-toggle="modal" data-target="#modalUsuario" onclick="modoEditar(this)">
+                                        data-toggle="modal" data-target="#modalUsuario" wire:click="$dispatch('abrir-modal', { id: {{ $usuario->id }} })">
                                         <i class="fas fa-edit"></i>
                                     </button>
                                     <button class="btn btn-sm btn-light border text-danger rounded-lg" title="Eliminar"
                                         data-toggle="modal" data-target="#modalEliminar"
-                                        onclick="confirmarEliminar(1, 'María Gómez')">
+                                         wire:click="$dispatch('confirmar-eliminacion', { id: {{ $usuario->id }} })">
                                         <i class="fas fa-trash-alt"></i>
                                     </button>
                                 </div>
@@ -111,3 +139,29 @@ new class extends Component {
         </div>
     </div>
 </div>
+
+@script
+    <script>
+        this.$on('confirmar-eliminacion', (event) => {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "¡No podrás revertir esto!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    this.$dispatch('eliminar-usuario', { id: event.id });
+                    Swal.fire(
+                        '¡Eliminado!',
+                        'El usuario ha sido eliminado.',
+                        'success'
+                    );
+                }
+            });
+        });
+    </script>
+@endscript
