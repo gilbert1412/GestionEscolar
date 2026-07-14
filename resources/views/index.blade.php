@@ -21,55 +21,78 @@
             font-family: 'Inter', sans-serif !important;
             background-color: #f8fafc;
         }
+
         /* Personalización de la Barra Lateral */
         .bg-gradient-primary {
-            background-color: #1e293b !important; /* Azul pizarra oscuro institucional */
+            background-color: #1e293b !important;
+            /* Azul pizarra oscuro institucional */
             background-image: none !important;
         }
+
         .sidebar .nav-item .nav-link {
             font-weight: 500;
             color: rgba(255, 255, 255, 0.75) !important;
         }
-        .sidebar .nav-item .nav-link:hover, .sidebar .nav-item.active .nav-link {
+
+        .sidebar .nav-item .nav-link:hover,
+        .sidebar .nav-item.active .nav-link {
             color: #ffffff !important;
             background-color: rgba(255, 255, 255, 0.05);
         }
+
         .sidebar .nav-item .nav-link i {
             color: rgba(255, 255, 255, 0.5) !important;
         }
-        .sidebar .nav-item .nav-link:hover i, .sidebar .nav-item.active .nav-link i {
-            color: #3b82f6 !important; /* Detalle azul brillante al pasar el cursor o estar activo */
+
+        .sidebar .nav-item .nav-link:hover i,
+        .sidebar .nav-item.active .nav-link i {
+            color: #3b82f6 !important;
+            /* Detalle azul brillante al pasar el cursor o estar activo */
         }
+
         .sidebar-brand {
-            background-color: #0f172a !important; /* Encabezado de barra lateral más oscuro para contraste */
+            background-color: #0f172a !important;
+            /* Encabezado de barra lateral más oscuro para contraste */
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
+
         .sidebar-heading {
             color: rgba(255, 255, 255, 0.4) !important;
             font-weight: 700;
             letter-spacing: 1px;
         }
+
         .collapse-inner {
-            background-color: #1e293b !important; /* El submenú ahora combina con la barra lateral en lugar de ser blanco */
+            background-color: #1e293b !important;
+            /* El submenú ahora combina con la barra lateral en lugar de ser blanco */
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
+
         .collapse-inner .collapse-item {
             color: rgba(255, 255, 255, 0.7) !important;
         }
-        .collapse-inner .collapse-item:hover, .collapse-inner .collapse-item.active {
+
+        .collapse-inner .collapse-item:hover,
+        .collapse-inner .collapse-item.active {
             background-color: rgba(255, 255, 255, 0.08) !important;
             color: #ffffff !important;
         }
+
         .collapse-inner .collapse-header {
             color: rgba(255, 255, 255, 0.4) !important;
             font-weight: 700;
         }
+
         /* Topbar y detalles */
         .topbar {
             border-bottom: 1px solid #e2e8f0;
         }
+
         /* Ajuste de transiciones suaves globales */
-        .nav-link, .collapse-item, .btn, .dropdown-item {
+        .nav-link,
+        .collapse-item,
+        .btn,
+        .dropdown-item {
             transition: all 0.15s ease-in-out !important;
         }
     </style>
@@ -180,7 +203,11 @@
                         <li class="nav-item dropdown no-arrow">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="mr-2 d-none d-lg-inline text-slate-600 font-weight-500 small" style="color: #475569;">Prof. Douglas McGee</span>
+                                <span class="mr-2 d-none d-lg-inline text-slate-600 font-weight-500 small" style="color: #475569;">
+                                    @auth
+                                    {{ Auth::user()->nombre }} {{ Auth::user()->apellido }}
+                                    @endauth
+                                </span>
                                 <img class="img-profile rounded-circle border"
                                     src="img/undraw_profile.svg" style="border-color: #cbd5e1; width: 32px; height: 32px;">
                             </a>
@@ -206,11 +233,11 @@
 
                 </nav>
                 <div class="container-fluid">
-                    
+
                     @yield('contenido')
 
                 </div>
-                </div>
+            </div>
             <footer class="sticky-footer bg-white border-top">
                 <div class="container my-auto">
                     <div class="copyright text-center my-auto text-muted small">
@@ -218,8 +245,8 @@
                     </div>
                 </div>
             </footer>
-            </div>
         </div>
+    </div>
     <a class="scroll-to-top rounded shadow-sm" href="#page-top" style="background-color: #1e293b; color: white;">
         <i class="fas fa-angle-up"></i>
     </a>
@@ -236,8 +263,11 @@
                 </div>
                 <div class="modal-body text-muted py-3">Selecciona "Cerrar sesión" abajo si estás listo para dar por terminada tu sesión actual.</div>
                 <div class="modal-footer border-0 bg-light rounded-bottom">
-                    <button class="btn btn-link text-muted font-weight-500" type="button" data-dismiss="modal" style="text-decoration: none;">Cancelar</button>
-                    <a class="btn btn-primary px-4 rounded-lg shadow-sm" href="login.html" style="background-color: #2563eb; border-color: #2563eb; font-weight: 500;">Cerrar sesión</a>
+                    <form action="{{ route('logout') }}" method="POST">
+                        @csrf
+                        <button class="btn btn-link text-muted font-weight-500" type="button" data-dismiss="modal" style="text-decoration: none;">Cancelar</button>
+                        <button class="btn btn-primary px-4 rounded-lg shadow-sm" type="submit" style="background-color: #2563eb; border-color: #2563eb; font-weight: 500;">Cerrar sesión</button>
+                    </form>
                 </div>
             </div>
         </div>
