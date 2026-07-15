@@ -4,6 +4,10 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\User;
 use App\Models\Curso;
+use App\Models\Cursos;
+use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
+use Spatie\Permission\Models\Role;
 
 new class extends Component {
     use WithPagination;
@@ -13,7 +17,85 @@ new class extends Component {
     public $editando = false;
     public $curso_id;
 
+    #[Computed]
+    public function docentesDisponibles()
+    {
+        return Role::where('name', 'docente')->first()->users()->select('id', 'nombre', 'apellido')->get();
+    }
+    #[Computed]
+    public function listarCursos()
+    {
+        return Cursos::with('docente')
+            ->where(function ($query) {
+                $query->where('nombre_curso', 'like', "%{$this->buscarCurso}%")
+                    ->orWhere('codigo', 'like', "%{$this->buscarCurso}%")
+                    ->orWhereHas('docente', function ($q) {
+                        $q->where('nombre', 'like', "%{$this->buscarCurso}%")
+                            ->orWhere('apellido', 'like', "%{$this->buscarCurso}%");
+                    });
+            })
+            ->get();
+    }
 
+    public function guardarCursos()
+    {
+        $this->validate([
+            'nombre_curso' => 'required|string|max:255',
+            'codigo' => 'required|string|max:50|unique:cursos,codigo,' . ($this->curso_id ?? 'NULL') . ',id',
+            'user_id' => 'nullable|exists:users,id',
+        ]);
+
+        if ($this->editando) {
+            $curso = Cursos::find($this->curso_id);
+            $curso->update([
+                'nombre_curso' => $this->nombre_curso,
+                'codigo' => $this->codigo,
+                'user_id' => $this->user_id,
+            ]);
+            
+            $this->dispatch('cerrar-modal', message: 'Curso actualizado exitosamente.');
+            
+        } else {
+            Cursos::create([
+                'nombre_curso' => $this->nombre_curso,
+                'codigo' => $this->codigo,
+                'user_id' => $this->user_id,
+            ]);
+            
+            $this->dispatch('cerrar-modal', message: 'Curso registrado exitosamente.');
+        }
+
+        $this->resetearFormulario();
+    }
+
+    public function cancelar()
+    {
+        $this->resetearFormulario();
+    }
+
+    public function editarCurso($id)
+    {
+        $curso = Cursos::findOrFail($id);
+        $this->curso_id = $curso->id;
+        $this->nombre_curso = $curso->nombre_curso;
+        $this->codigo = $curso->codigo;
+        $this->user_id = $curso->user_id;
+        $this->editando = true;
+    }
+    public function resetearFormulario()
+    {
+        $this->resetValidation(); // Elimina los errores
+        $this->reset(); // Limpia los campos del formulario
+        $this->editando = false;
+    }
+    #[On('eliminar-curso')]
+    public function eliminarCurso($id)
+    {
+        $curso = Cursos::findOrFail($id);
+        $curso->delete();
+        $this->dispatch('cerrar-modal', message: 'Curso eliminado exitosamente.');
+    }
+    
 };
 ?>
 
@@ -40,7 +122,7 @@ new class extends Component {
                 </div>
 
                 <div class="card-body d-flex flex-column justify-content-between pt-4">
-                    <form wire:submit.prevent="guardar" class="h-100 d-flex flex-column justify-content-between">
+                    <form wire:submit.prevent="guardarCursos" class="h-100 d-flex flex-column justify-content-between">
                         <div>
                             <!-- Nombre del curso -->
                             <div class="form-group mb-3">
@@ -48,12 +130,12 @@ new class extends Component {
                                     style="letter-spacing: 0.5px; font-size: 0.725rem;">
                                     NOMBRE DEL CURSO <span class="text-danger">*</span>
                                 </label>
-                                <input type="text" class="form-control @error('nombre_curso') is-invalid @enderror"
+                                <input type="text" class="form-control"
                                     style="border-radius: 8px; border-color: #cbd5e1; padding: 0.6rem 0.9rem; font-size: 0.875rem;"
-                                    placeholder="Ej. Programación I" wire:model.defer="nombre_curso">
+                                    placeholder="Ej. Programación I" wire:model="nombre_curso">
                                 @error('nombre_curso')
-                                    <span class="invalid-feedback d-block mt-1"
-                                        style="font-size: 0.75rem;">{{ $message }}</span>
+                                <span class="invalid-feedback d-block mt-1"
+                                    style="font-size: 0.75rem;">{{ $message }}</span>
                                 @enderror
                             </div>
 
@@ -64,12 +146,12 @@ new class extends Component {
                                     CÓDIGO <span class="text-danger">*</span>
                                 </label>
                                 <input type="text"
-                                    class="form-control text-uppercase @error('codigo') is-invalid @enderror"
+                                    class="form-control text-uppercase"
                                     style="border-radius: 8px; border-color: #cbd5e1; padding: 0.6rem 0.9rem; font-size: 0.875rem;"
-                                    placeholder="Ej. PRG-101" wire:model.defer="codigo">
+                                    placeholder="Ej. PRG-101" wire:model="codigo">
                                 @error('codigo')
-                                    <span class="invalid-feedback d-block mt-1"
-                                        style="font-size: 0.75rem;">{{ $message }}</span>
+                                <span class="invalid-feedback d-block mt-1"
+                                    style="font-size: 0.75rem;">{{ $message }}</span>
                                 @enderror
                             </div>
 
@@ -79,15 +161,18 @@ new class extends Component {
                                     style="letter-spacing: 0.5px; font-size: 0.725rem;">
                                     DOCENTE ASIGNADO
                                 </label>
-                                <select class="form-control @error('user_id') is-invalid @enderror"
+                                <select class="form-control"
                                     style="border-radius: 8px; border-color: #cbd5e1; padding: 0.6rem 0.9rem; height: auto; font-size: 0.875rem;"
-                                    wire:model.defer="user_id">
+                                    wire:model="user_id">
                                     <option value="">Seleccione un docente...</option>
                                     <!-- Opciones cargadas dinámicamente -->
+                                    @foreach ($this->docentesDisponibles as $docente)
+                                    <option value="{{ $docente->id }}">{{ $docente->nombre }} {{ $docente->apellido }}</option>
+                                    @endforeach
                                 </select>
                                 @error('user_id')
-                                    <span class="invalid-feedback d-block mt-1"
-                                        style="font-size: 0.75rem;">{{ $message }}</span>
+                                <span class="invalid-feedback d-block mt-1"
+                                    style="font-size: 0.75rem;">{{ $message }}</span>
                                 @enderror
                             </div>
                         </div>
@@ -95,11 +180,11 @@ new class extends Component {
                         <!-- Botonera -->
                         <div class="d-flex align-items-center pt-3" style="border-top: 1px solid #f1f5f9;">
                             @if($editando)
-                                <button type="button"
-                                    class="btn btn-link text-muted font-weight-bold text-decoration-none mr-auto px-0"
-                                    style="font-size: 0.825rem;" wire:click="cancelarEdicion">
-                                    Cancelar
-                                </button>
+                            <button type="button"
+                                class="btn btn-link text-muted font-weight-bold text-decoration-none mr-auto px-0"
+                                style="font-size: 0.825rem;" wire:click="cancelar">
+                                Cancelar
+                            </button>
                             @endif
 
                             <button type="submit" class="btn rounded-lg text-white shadow-sm px-4 py-2 ml-auto"
@@ -161,33 +246,41 @@ new class extends Component {
                             <thead
                                 style="background-color: #f8fafc; color: #64748b; font-size: 0.725rem; text-transform: uppercase; letter-spacing: 0.8px;">
                                 <tr>
-                                    <th class="border-0 pl-4 py-3" style="width: 20%;">Código</th>
-                                    <th class="border-0 py-3" style="width: 45%;">Curso</th>
+                                    <th class="border-0 pl-4 py-3" style="width: 5%;">Id</th>
+                                    <th class="border-0 pl-4 py-3" style="width: 10%;">Código</th>
+                                    <th class="border-0 py-3" style="width: 20%;">Curso</th>
                                     <th class="border-0 py-3" style="width: 20%;">Docente</th>
                                     <th class="border-0 text-right pr-4 py-3" style="width: 15%;">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody style="color: #334155; font-size: 0.875rem;">
 
-                                <!-- ESTADO VACÍO (Reemplázalo dinámicamente con tus filas de Laravel) -->
-                                <tr>
-                                    <td colspan="4" class="text-center py-5" style="background-color: #ffffff;">
-                                        <div class="py-5">
-                                            <div class="d-inline-flex align-items-center justify-content-center bg-light rounded-circle mb-3"
-                                                style="width: 64px; height: 64px;">
-                                                <i class="fas fa-folder-open fa-lg" style="color: #cbd5e1;"></i>
-                                            </div>
-                                            <h6 class="font-weight-bold mb-1"
-                                                style="color: #475569; font-size: 0.9rem;">
-                                                {{ $buscarCurso ? 'No se encontraron resultados' : 'No hay materias registradas' }}
-                                            </h6>
-                                            <p class="text-muted small mb-0 px-3" style="font-size: 0.775rem;">
-                                                {{ $buscarCurso ? 'Intenta con otro término.' : 'Comienza agregando un curso en el panel de la izquierda.' }}
-                                            </p>
-                                        </div>
+                                @forelse ($this->listarCursos as $curso)
+                                <tr wire:key="curso-{{ $curso->id }}"> 
+                                    <td class=" py-3">{{ $loop->iteration }}</td> 
+                                    <td class="pl-4 py-3">{{ $curso->codigo }}</td>
+                                    <td class="py-3">{{ $curso->nombre_curso }}</td>
+                                    <td class="py-3">
+                                        {{ $curso->docente ? $curso->docente->nombre . ' ' . $curso->docente->apellido : 'Sin docente' }}
                                     </td>
-
+                                    <td class="text-right pr-4 py-3">
+                                        <button class="btn btn-sm btn-link text-primary mr-2" wire:click="editarCurso({{ $curso->id }})">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-link text-danger" wire:click="$dispatch('confirmar-eliminacion', { id: {{ $curso->id }} })">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </td>
                                 </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="5" class="text-center py-4 text-muted">
+                                        <i class="fas fa-folder-open d-block mb-2 fa-2x"></i>
+                                        No hay cursos registrados o no coinciden con la búsqueda.
+                                    </td>
+                                </tr>
+                                @endforelse
+
 
                             </tbody>
                         </table>
@@ -198,3 +291,42 @@ new class extends Component {
 
     </div>
 </div>
+
+@script
+    <script>
+       
+        this.$on('cerrar-modal', (event) => {
+        $('#modalUsuario').modal('hide');
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Correcto',
+            text: event.message,
+            timer: 3000,
+            showConfirmButton: false
+        });
+
+        this.$on('confirmar-eliminacion', (event) => {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "¡No podrás revertir esto!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    this.$dispatch('eliminar-curso', { id: event.id });
+                    Swal.fire(
+                        '¡Eliminado!',
+                        'El curso ha sido eliminado.',
+                        'success'
+                    );
+                }
+            });
+        });
+    });
+    </script>
+@endscript
