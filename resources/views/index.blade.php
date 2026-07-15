@@ -154,7 +154,7 @@
                     data-parent="#accordionSidebar">
                     <div class="collapse-inner py-2 rounded-lg">
                         <h6 class="collapse-header">Configuración escolar:</h6>
-                        <a class="collapse-item" href="#">Secciones y Grados</a>
+                        <a class="collapse-item" href="{{ route('matricula') }}">Matriculas</a>
                         <a class="collapse-item" href="{{ route('curso') }}">Asignaturas</a>
                         <a class="collapse-item" href="#">Horarios</a>
                     </div>

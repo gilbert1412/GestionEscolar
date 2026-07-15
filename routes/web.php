@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CursoController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\MatriculaController;
 use App\Http\Controllers\UsuarioController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -18,6 +19,7 @@ Route::middleware(['auth'])->group(function () {
 Route::get('/usuario-registro',[UsuarioController::class,'index'])->name('usuario');
 Route::get('/dashboard',[DashboardController::class,'index'])->name('dashboard');
 Route::get('/curso-registro',[CursoController::class,'index'])->name('curso');
+Route::get('/matricula-registro',[MatriculaController::class,'index'])->name('matricula');
 });
 
 
