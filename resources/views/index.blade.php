@@ -12,7 +12,8 @@
     <title>Portal Académico - Sistema Escolar</title>
 
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
 
     <link rel="stylesheet" href="css/sb-admin-2.min.css">
 
@@ -109,7 +110,8 @@
                 <div class="sidebar-brand-icon">
                     <i class="fas fa-graduation-cap text-primary" style="font-size: 1.4rem;"></i>
                 </div>
-                <div class="sidebar-brand-text mx-3" style="font-size: 0.9rem; font-weight: 700; letter-spacing: 0.5px;">Portal Académico</div>
+                <div class="sidebar-brand-text mx-3"
+                    style="font-size: 0.9rem; font-weight: 700; letter-spacing: 0.5px;">Portal Académico</div>
             </a>
 
             <hr class="sidebar-divider my-0" style="border-top: 1px solid rgba(255,255,255,0.05)">
@@ -153,7 +155,7 @@
                     <div class="collapse-inner py-2 rounded-lg">
                         <h6 class="collapse-header">Configuración escolar:</h6>
                         <a class="collapse-item" href="#">Secciones y Grados</a>
-                        <a class="collapse-item" href="#">Asignaturas</a>
+                        <a class="collapse-item" href="{{ route('curso') }}">Asignaturas</a>
                         <a class="collapse-item" href="#">Horarios</a>
                     </div>
                 </div>
@@ -182,7 +184,8 @@
             <hr class="sidebar-divider d-none d-md-block" style="border-top: 1px solid rgba(255,255,255,0.05)">
 
             <div class="text-center d-none d-md-inline">
-                <button class="rounded-circle border-0" id="sidebarToggle" style="background-color: rgba(255,255,255,0.08);"></button>
+                <button class="rounded-circle border-0" id="sidebarToggle"
+                    style="background-color: rgba(255,255,255,0.08);"></button>
             </div>
 
         </ul>
@@ -203,13 +206,14 @@
                         <li class="nav-item dropdown no-arrow">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="mr-2 d-none d-lg-inline text-slate-600 font-weight-500 small" style="color: #475569;">
+                                <span class="mr-2 d-none d-lg-inline text-slate-600 font-weight-500 small"
+                                    style="color: #475569;">
                                     @auth
-                                    {{ Auth::user()->nombre }} {{ Auth::user()->apellido }}
+                                        {{ Auth::user()->nombre }} {{ Auth::user()->apellido }}
                                     @endauth
                                 </span>
-                                <img class="img-profile rounded-circle border"
-                                    src="img/undraw_profile.svg" style="border-color: #cbd5e1; width: 32px; height: 32px;">
+                                <img class="img-profile rounded-circle border" src="img/undraw_profile.svg"
+                                    style="border-color: #cbd5e1; width: 32px; height: 32px;">
                             </a>
                             <div class="dropdown-menu dropdown-menu-right shadow border-0 rounded-lg animated--grow-in"
                                 aria-labelledby="userDropdown" style="font-size: 0.9rem;">
@@ -222,7 +226,8 @@
                                     Ajustes
                                 </a>
                                 <div class="dropdown-divider" style="border-top: 1px solid #f1f5f9;"></div>
-                                <a class="dropdown-item py-2 text-danger" href="#" data-toggle="modal" data-target="#logoutModal">
+                                <a class="dropdown-item py-2 text-danger" href="#" data-toggle="modal"
+                                    data-target="#logoutModal">
                                     <i class="fas fa-sign-out-alt fa-sm fa-fw mr-3 text-danger"></i>
                                     Cerrar Sesión
                                 </a>
@@ -256,17 +261,22 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content border-0 shadow">
                 <div class="modal-header border-0 pb-0">
-                    <h5 class="modal-title font-weight-bold" id="exampleModalLabel" style="color: #0f172a;">¿Listo para salir?</h5>
+                    <h5 class="modal-title font-weight-bold" id="exampleModalLabel" style="color: #0f172a;">¿Listo para
+                        salir?</h5>
                     <button class="close" type="button" data-dismiss="modal" aria-label="Close" style="outline: none;">
                         <span aria-hidden="true" style="font-size: 1.5rem;">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body text-muted py-3">Selecciona "Cerrar sesión" abajo si estás listo para dar por terminada tu sesión actual.</div>
+                <div class="modal-body text-muted py-3">Selecciona "Cerrar sesión" abajo si estás listo para dar por
+                    terminada tu sesión actual.</div>
                 <div class="modal-footer border-0 bg-light rounded-bottom">
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf
-                        <button class="btn btn-link text-muted font-weight-500" type="button" data-dismiss="modal" style="text-decoration: none;">Cancelar</button>
-                        <button class="btn btn-primary px-4 rounded-lg shadow-sm" type="submit" style="background-color: #2563eb; border-color: #2563eb; font-weight: 500;">Cerrar sesión</button>
+                        <button class="btn btn-link text-muted font-weight-500" type="button" data-dismiss="modal"
+                            style="text-decoration: none;">Cancelar</button>
+                        <button class="btn btn-primary px-4 rounded-lg shadow-sm" type="submit"
+                            style="background-color: #2563eb; border-color: #2563eb; font-weight: 500;">Cerrar
+                            sesión</button>
                     </form>
                 </div>
             </div>
